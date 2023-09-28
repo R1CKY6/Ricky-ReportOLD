@@ -1,0 +1,486 @@
+<html>
+    <head>
+        <title>Tech Development on Top</title>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <link rel="stylesheet" href="./css/style.css">
+    </head>
+    <body>
+
+        <div id="app">
+            <div class="h-full w-full flex justify-center items-center">
+
+                <transition name="sendImage">
+                    <div v-if="selectedOption=='sendimage'" class="h-full w-full flex items-center justify-center absolute">
+                        <div class="absolute top-[6.7%] h-[9%] w-[26.5%] bg-cover bg-no-repeat bg-[url('./img/sendimage.png')] cursor-pointer flex items-center justify-center">
+                            <div class="text-[25px]">{{locales.send_image}}</div>
+                        </div>
+                    </div>
+                </transition>
+
+                <div v-if="selectedOption!='sendimage'" class="h-[82%] w-[82.4%] border-[2px] border-[#8E8E8E] rounded-[10px] relative bg-[#d8d8d80d]">
+
+
+                    <!-- Right menu -->
+                    <div class="h-full w-[80.5%] absolute left-[19.5%]">
+
+                        <transition name="opacity">
+                            <div v-if="selectedOption==1" class="h-full flex items-center justify-center">
+                                <div class="text-[35px] absolute top-[3%]">{{locales.create_new_report}}</div>
+                                <div class="text-[28px] text-[#7D7D7D] absolute top-[8%]">{{locales.fill_all}}</div>
+
+                                <div class="absolute top-[24.6%] h-[8.5%] w-[73.4%] flex justify-between items-center">
+                                    <div :style="{backgroundColor:  selectedReportType === 1 ? 'gray' : '#d8d8d80d'}" @click="updateSelectedReportType(1)" class="cursor-pointer h-full w-[28.5%] border-[2px] border-[#8E8E8E] rounded-[10px] flex items-center justify-center duration-[1s]">
+                                        <div class="text-[35px]">{{locales.player}}</div>
+                                    </div>
+                                    <div :style="{backgroundColor:  selectedReportType === 2 ? 'gray' : '#d8d8d80d'}" @click="updateSelectedReportType(2)" class="bg-[#d8d8d80d] cursor-pointer h-full w-[28.5%] border-[2px] border-[#8E8E8E] rounded-[10px] flex items-center justify-center duration-[1s]">
+                                        <div class="text-[35px]">{{locales.bug}}</div>
+                                    </div>
+                                    <div :style="{backgroundColor:  selectedReportType === 3 ? 'gray' : '#d8d8d80d'}" @click="updateSelectedReportType(3)" class="bg-[#d8d8d80d] cursor-pointer h-full w-[28.5%] border-[2px] border-[#8E8E8E] rounded-[10px] flex items-center justify-center duration-[1s]">
+                                        <div class="text-[35px]">{{locales.other}}</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-[#d8d8d80d] h-[7%] w-[35.5%] border-[2px] border-[#8E8E8E] rounded-[10px] relative">
+                                    <div class="h-full w-[14.4%] border-r-[2px] border-r-[#8E8E8E] flex items-center justify-center absolute">
+                                        <img src="./img/title_input.png" alt="">
+                                    </div>
+                                    <input id="titleReport" class="absolute left-[14.4%] h-full w-[85%] bg-transparent p-[1vh] text-[25px]" :placeholder="locales.type_title" type="text">
+                                </div>
+
+                                <div @click="createNewReport()" class="bg-[#d8d8d80d] h-[9%] absolute bottom-[24.6%] w-[24%] border-[2px] border-[#8E8E8E] rounded-[10px] flex items-center justify-center duration-[1s] cursor-pointer hover:bg-[gray]">
+                                    <div class="text-[35px]">{{locales.create}}</div>
+                                </div>
+                            </div>
+                        </transition>
+
+
+                        <transition name="opacity">
+                            <div v-if="selectedOption==2" class="h-full flex items-center justify-center">
+                                <div class="text-[35px] absolute top-[3%]">{{locales.my_report}}</div>
+                                <div class="text-[28px] text-[#7D7D7D] absolute top-[8%]">{{locales.my_report_sub}}</div>
+                                <div class="absolute bottom-[3%] h-[83%] w-[85%] flex items-center justify-center">
+                                    <div class="relative h-full w-full overflow-x-auto shadow-md sm:rounded-lg">
+                                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                            <thead class="bg-[#19191A] text-[20px]">
+                                                <tr>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.title}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.type}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.status}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.open_date}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.close_date}}
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody @click="viewReport(v)" class="cursor-pointer" v-for="v in reportPlayer">
+                                                <tr class="bg-[#262627] border-b">
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{v.title}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{getTypeLabel(v.type)}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{getStatusLabel(v.status)}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{v.openDate}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{v.closeDate || locales.no_closedate}}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
+
+
+                        <transition name="opacity">
+                            <div v-if="selectedOption==3" class="h-full flex items-center justify-center">
+                                <div class="text-[35px] absolute top-[3%]">{{locales.staff_list}}</div>
+
+                                <div class="h-[80%] w-[35%] absolute overflow-y-auto">
+                                    <div v-for="v in staffList" class="h-[10.5%] w-full border rounded-[10px] border-[2px] border-[#8E8E8E] bg-[#19191A] mb-[5%] flex justify-center relative cursor-pointer">
+                                        <div class="text-[23px] absolute top-[5%]">{{v.name}}</div>
+                                        <div v-if="v.status=='online'" class="rounded-full absolute bottom-[8%] bg-[#66DE1D] h-[35%] w-[6%]"></div>
+                                        <div v-else class="rounded-full absolute bottom-[8%] bg-[#DE1D1D] h-[35%] w-[6%]"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
+
+                        <transition name="opacity">
+                            <div v-if="selectedOption=='all_report'" class="h-full flex items-center justify-center">
+                                <div class="text-[35px] absolute top-[3%]">{{locales.all_report}}</div>
+                                <div class="absolute bottom-[3%] h-[83%] w-[85%] flex items-center justify-center">
+                                    <div class="relative h-full w-full overflow-x-auto shadow-md sm:rounded-lg">
+                                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                            <thead class="bg-[#19191A] text-[20px]">
+                                                <tr>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.player_name}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.title}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.type}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.status}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.open_date}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.close_date}}
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody v-if="v.status!='closed'" @click="viewReportStaff(v)" class="cursor-pointer" v-for="v in reportStaffs">
+                                                <tr class="bg-[#262627] border-b">
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{v.ownerName}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{v.title}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{getTypeLabel(v.type)}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{getStatusLabel(v.status)}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{v.openDate}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{v.closeDate || locales.no_closedate}}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
+
+
+                        <transition name="opacity">
+                            <div v-if="selectedOption=='reportclaimed'" class="h-full flex items-center justify-center">
+                                <div class="text-[35px] absolute top-[3%]">{{locales.report_claimed}}</div>
+                                <div class="absolute bottom-[3%] h-[83%] w-[85%] flex items-center justify-center">
+                                    <div class="relative h-full w-full overflow-x-auto shadow-md sm:rounded-lg">
+                                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                            <thead class="bg-[#19191A] text-[20px]">
+                                                <tr>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.player_name}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.title}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.type}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.status}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.open_date}}
+                                                    </th>
+                                                    <th scope="col" class="px-6 py-3">
+                                                        {{locales.close_date}}
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody @click="viewReportStaff(v)" class="cursor-pointer" v-for="v in reportClaimed()">
+                                                <tr class="bg-[#262627] border-b">
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{v.ownerName}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{v.title}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{getTypeLabel(v.type)}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{getStatusLabel(v.status)}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{v.openDate}}
+                                                    </td>
+                                                    <td class="px-6 py-4 text-[20px]">
+                                                        {{v.closeDate || locales.no_closedate}}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
+
+                        <transition name="opacity">
+                            <div v-if="selectedOption=='viewreportplayer'" class="h-full flex items-center justify-center">
+                                <div class="text-[35px] absolute top-[3%]">{{reportSelected.title}}</div>
+                                <!-- <div class="text-[28px] text-[#7D7D7D] absolute top-[8%]">{{locales.my_report_sub}}</div> -->
+
+                                <!-- Container Messaggi -->
+                                <div class="absolute bottom-[19%] h-[68%] w-[79%] border-[2px] rounded-[10px] border-[#8E8E8E] bg-[#18181A]">
+                                    
+                                    <input id="messagePlayer" v-if="reportSelected.status!='closed'" class="absolute bottom-[0%] h-[11%] w-[85%] bg-[transparent] p-[1vh] text-[25px]" :placeholder="locales.type_message" type="text">
+
+                                    
+                                    <div @click="sendImage()" v-if="reportSelected.status!='closed'" class="absolute bottom-[1.3%] h-[8.4%] w-[5%] border right-[8.5%] rounded-[10px] bg-[#262627] border-[#8E8E8E] border-[2px] flex items-center justify-center cursor-pointer">
+                                        <img src="./img/photo.png" alt="">
+                                    </div>
+                                    <div @click="sendMessage(false)" v-if="reportSelected.status!='closed'" class="absolute bottom-[1.3%] h-[8.4%] w-[5%] border right-[1.3%] rounded-[10px] bg-[#262627] border-[#8E8E8E] border-[2px] flex items-center justify-center cursor-pointer">
+                                        <img src="./img/sendmessage.png" alt="">
+                                    </div>
+
+                                    <div id="containerMessaggi" class="h-[89%] w-full absolute overflow-y-auto border-b-[2px] border-b-[#8E8E8E]">
+                                        <div v-for="v in reportSelected.msg">
+                                            <div v-if="v.sender=='staff'" class="relative h-[20%] w-full">
+                                                <div class="text-[#7D7D7D] absolute left-[1.7%] top-[9%]">{{v.name}} - {{v.id}}</div>
+                                                <div v-if="v.type=='message'" class="absolute top-[30%] left-[1.7%] h-auto max-w-[85%] bg-[#262627] rounded-[5px] flex items-center justify-start">
+                                                    <div class="text-[20px] text-[#7D7D7D] p-[1vh]">{{v.content}}</div>
+                                                </div>  
+                                                
+                                                <div @click="viewImage(v.content)" v-if="v.type=='image'" class="absolute top-[30%] left-[1.7%] h-auto max-w-[85%] bg-[#262627] rounded-[5px] flex items-center justify-start cursor-pointer">
+                                                    <div class="text-[20px] text-blue-400 p-[1vh]">{{locales.view_image}}</div>
+                                                </div>  
+                                            </div>
+    
+                                            <div v-if="v.sender=='player'" class="relative h-[20%] w-full">
+                                                <div class="text-[#7D7D7D] absolute right-[1.7%] top-[9%]">{{v.name}} - {{v.id}}</div>
+                                                <div v-if="v.type=='message'" class="absolute top-[30%] right-[1.7%] h-auto max-w-[85%] bg-[#262627] rounded-[5px] flex items-center justify-start">
+                                                    <div class="text-[20px] text-[#7D7D7D] p-[1vh]">{{v.content}}</div>
+                                                </div>   
+                                                
+                                                <div @click="viewImage(v.content)" v-if="v.type=='image'" class="absolute top-[30%] right-[1.7%] h-auto max-w-[85%] bg-[#262627] rounded-[5px] flex items-center justify-start cursor-pointer">
+                                                    <div class="text-[20px] text-blue-400 p-[1vh]">{{locales.view_image}}</div>
+                                                </div>  
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <transition name="opacity">
+                                        <div v-if="currentImageView!=''" class="absolute h-full w-full flex items-center justify-center rounded-[10px]" style="backdrop-filter: blur(10px);">
+                                            <img class="object-contain w-[75%] h-auto" :src="currentImageView" alt="">
+                                        </div>
+                                    </transition>
+                                </div>
+
+
+                                <div class="absolute bottom-[1%] h-[16.4%] w-[79%] flex items-center justify-center">
+
+                                    <div v-bind:style="getStatusImage(reportSelected.status)" class="h-full w-[15%] mr-[6%] bg-contain bg-no-repeat bg-[url('./img/status_pending.png')] rounded-[10px] flex justify-center cursor-pointer">
+                                        <div class="text-[15px] absolute top-[3%] text-[#8E8E8E]">{{locales.status}}</div>
+                                        <div class="absolute h-full w-full flex items-center justify-center">
+                                            <div v-bind:style="getStatusColor(reportSelected.status)" class="rounded-full h-[35%] w-[5%] border"></div>
+                                        </div>
+                                        <div class="text-[20px] text-[#8E8E8E] bottom-[6%] absolute">{{getStatusLabel(reportSelected.status)}}</div>
+                                    </div>
+
+                                    <div class="h-full w-[15%] mr-[6%] bg-contain bg-no-repeat bg-[url('./img/admin_in_report.png')] rounded-[10px] flex justify-center cursor-pointer">
+                                        <div class="text-[15px] absolute top-[3%] text-[#8E8E8E]">{{locales.admin_in_report}}</div>
+                                        <div class="text-[20px] text-[#8E8E8E] bottom-[6%] absolute">{{reportSelected.staff.length}}</div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </transition>
+
+
+                        <transition name="opacity">
+                            <div v-if="selectedOption=='viewreportstaff'" class="h-full flex items-center justify-center">
+
+
+                                <div class="text-[35px] absolute top-[1%]">{{reportSelected.title}} - {{reportSelected.ownerName}}</div>
+                                <div class="text-[18px] text-[#7D7D7D] absolute top-[7%]">{{reportSelected.identifier}}</div>
+                                <div @click="copyLicense()" class="cursor-pointer h-[5%] w-[5%] absolute top-[1%] right-[20%] top-[5.7%] flex items-center justify-center">
+                                    <img src="./img/copy.png" alt="">
+                                </div>
+
+                                <!-- Container Messaggi -->
+                                <div class="absolute bottom-[19%] h-[68%] w-[79%] border-[2px] rounded-[10px] border-[#8E8E8E] bg-[#18181A]">
+
+
+                                    <input id="messageStaff" v-if="reportSelected.status!='closed' && claimedReport(reportSelected.id)" class="absolute bottom-[0%] h-[11%] w-[85%] bg-[transparent] p-[1vh] text-[25px]" :placeholder="locales.type_message" type="text">
+
+                                    <div @click="sendImage()" v-if="reportSelected.status!='closed'" class="absolute bottom-[1.3%] h-[8.4%] w-[5%] border right-[8.5%] rounded-[10px] bg-[#262627] border-[#8E8E8E] border-[2px] flex items-center justify-center cursor-pointer">
+                                        <img src="./img/photo.png" alt="">
+                                    </div>
+                                    <div @click="sendMessage(true)" v-if="reportSelected.status!='closed'" class="absolute bottom-[1.3%] h-[8.4%] w-[5%] border right-[1.3%] rounded-[10px] bg-[#262627] border-[#8E8E8E] border-[2px] flex items-center justify-center cursor-pointer">
+                                        <img src="./img/sendmessage.png" alt="">
+                                    </div>
+
+                                    <div id="containerMessaggi" class="h-[89%] w-full absolute overflow-y-auto border-b-[2px] border-b-[#8E8E8E]">
+                                        <div v-for="v in reportSelected.msg">
+                                            <div v-if="v.sender=='staff'" class="relative h-[20%] w-full">
+                                                <div class="text-[#7D7D7D] absolute right-[1.7%] top-[9%]">{{v.name}} - {{v.id}}</div>
+                                                <div v-if="v.type=='message'" class="absolute top-[30%] right-[1.7%] h-auto max-w-[85%] bg-[#262627] rounded-[5px] flex items-center justify-start">
+                                                    <div class="text-[20px] text-[#7D7D7D] p-[1vh]">{{v.content}}</div>
+                                                </div>  
+                                                
+                                                <div @click="viewImage(v.content)" v-if="v.type=='image'" class="absolute top-[30%] right-[1.7%] h-auto max-w-[85%] bg-[#262627] rounded-[5px] flex items-center justify-start cursor-pointer">
+                                                    <div class="text-[20px] text-blue-400 p-[1vh]">{{locales.view_image}}</div>
+                                                </div>  
+                                            </div>
+    
+                                            <div v-if="v.sender=='player'" class="relative h-[20%] w-full">
+                                                <div class="text-[#7D7D7D] absolute left-[1.7%] top-[9%]">{{v.name}} - {{v.id}}</div>
+                                                <div v-if="v.type=='message'" class="absolute top-[30%] left-[1.7%] h-auto max-w-[85%] bg-[#262627] rounded-[5px] flex items-center justify-start">
+                                                    <div class="text-[20px] text-[#7D7D7D] p-[1vh]">{{v.content}}</div>
+                                                </div>   
+                                                
+                                                <div @click="viewImage(v.content)" v-if="v.type=='image'" class="absolute top-[30%] left-[1.7%] h-auto max-w-[85%] bg-[#262627] rounded-[5px] flex items-center justify-start cursor-pointer">
+                                                    <div class="text-[20px] text-blue-400 p-[1vh]">{{locales.view_image}}</div>
+                                                </div>  
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <transition name="opacity">
+                                        <div v-if="currentImageView!=''" class="absolute h-full w-full flex items-center justify-center rounded-[10px]" style="backdrop-filter: blur(10px);">
+                                            <img class="object-contain w-[75%] h-auto" :src="currentImageView" alt="">
+                                        </div>
+                                    </transition>
+
+                                    <transition name="opacity">
+                                        <div v-if="viewReason" class="h-full w-full rounded-[10px] flex justify-center" style="backdrop-filter: blur(10px);">
+                                            <div class="absolute top-[2%] text-[25px]">{{viewReasonTitle}}</div>
+    
+                                            <input id="reason" class="p-[1vh] absolute top-[30%] h-[7%] w-[25%] rounded-[5px] bg-[#d8d8d80d] border-[#464646] border-[1px]" type="text" :placeholder="locales.type_reason">
+    
+                                            <div @click="actionAfterConfirm()" class="absolute top-[70%] w-[25%] h-[9%] rounded-[5px] bg-[#d8d8d80d] border-[#464646] border-[1px] cursor-pointer flex items-center justify-center">
+                                                <div>{{locales.confirm}}</div>
+                                            </div>
+                                        </div>
+                                    </transition>
+
+
+                                </div>
+
+
+                                <div class="absolute bottom-[1%] h-[16.4%] w-[79%] flex items-center justify-center left-[12.5%]">
+
+                                    <!-- <div v-bind:style="getStatusImage(reportSelected.status)" class="h-full w-[15%] mr-[6%] bg-contain bg-no-repeat bg-[url('./img/status_pending.png')] rounded-[10px] flex justify-center cursor-pointer">
+                                        <div class="text-[15px] absolute top-[3%] text-[#8E8E8E]">{{locales.status}}</div>
+                                        <div class="absolute h-full w-full flex items-center justify-center">
+                                            <div v-bind:style="getStatusColor(reportSelected.status)" class="rounded-full h-[35%] w-[5%] border"></div>
+                                        </div>
+                                        <div class="text-[15px] text-[#8E8E8E] bottom-[6%] absolute">{{getStatusLabel(reportSelected.status)}}</div>
+                                    </div> -->
+
+                                    <div  v-bind:style="getStatusImage(reportSelected.status)" class="h-full w-[15%] mr-[6%] bg-contain bg-no-repeat bg-[url('./img/admin_in_report.png')] rounded-[10px] flex justify-center cursor-pointer">
+                                        <div class="text-[15px] absolute top-[3%] text-[#8E8E8E]">{{locales.status}}</div>
+                                        <div class="absolute h-full w-[15%] flex items-center justify-center">
+                                            <div v-bind:style="getStatusColor(reportSelected.status)" class="rounded-full h-[35%] w-[33%] border"></div>
+                                        </div>
+                                        <div class="text-[15px] text-[#8E8E8E] bottom-[6%] absolute">{{getStatusLabel(reportSelected.status)}}</div>
+                                    </div>
+
+                                    <div v-if="reportSelected.status!='closed'" @click="claimReport()" class="h-full w-[15%] mr-[6%] bg-contain bg-no-repeat bg-[url('./img/admin_in_report.png')] rounded-[10px] flex justify-center cursor-pointer">
+                                        <div v-if="!claimedReport(reportSelected.id)" class="text-[15px] absolute top-[3%] text-[#8E8E8E]">{{locales.claim_report}}</div>
+                                        <div v-else class="text-[15px] absolute top-[3%] text-[#8E8E8E]">{{locales.admin_in_report}}</div>
+                                        <div class="text-[15px] text-[#8E8E8E] bottom-[6%] absolute">{{reportSelected.staff.length}}</div>
+                                    </div>
+
+                                    <div @click="action('ban')" class="h-full w-[15%] mr-[6%] bg-contain bg-no-repeat bg-[url('./img/ban.png')] rounded-[10px] flex justify-center cursor-pointer">
+                                        <div class="text-[15px] absolute top-[3%] text-[#8E8E8E]">{{locales.ban}}</div>
+                                    </div>
+
+                                    <div @click="action('kick')" class="h-full w-[15%] mr-[6%] bg-contain bg-no-repeat bg-[url('./img/kick.png')] rounded-[10px] flex justify-center cursor-pointer">
+                                        <div class="text-[15px] absolute top-[3%] text-[#8E8E8E]">{{locales.kick}}</div>
+                                    </div>
+
+                                    <div v-if="reportSelected.status!='closed'" @click="action('closereport')" class="h-full w-[15%] mr-[6%] bg-contain bg-no-repeat bg-[url('./img/closereport.png')] rounded-[10px] flex justify-center cursor-pointer">
+                                        <div class="text-[15px] absolute top-[3%] text-[#8E8E8E]">{{locales.close_report}}</div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </transition>
+
+                        <transition name="notify">
+                            <div v-if="showNotify" class="absolute left-[2%] h-[7%] top-[1%] w-[25%] border bg-[#19191A] rounded-[10px] border-[1px] border-[#8E8E8E] flex items-center justify-center">
+                                <div class="text-[25px]">{{notifyText}}</div>
+                            </div>
+                        </transition>
+                    </div>
+
+                    <!-- Left menu -->
+                    <div class="h-full w-[19.5%] border-r-[2px] border-r-[#8E8E8E] relative">
+                        <div class="h-full w-full flex absolute justify-center">
+                            <img class="object-contain w-[35%] absolute top-[2%]" src="./img/circle.png" alt="">
+                        </div>
+                        
+                        <div v-if="!staff" @click="updateSelectedIndex(1)" class="h-[4%] w-full relative top-[39%] flex justify-start items-center cursor-pointer mb-[5%]">
+                            <div v-if="selectedOption==1" class="h-full w-[2%] bg-[white] rounded-r-lg absolute"></div>
+                            <img class="p-[1vh] object-contain w-[18%]" src="./img/newreport.png" alt="">
+                            <div class="h-full w-full flex items-center justify-center">
+                                <div class="text-[25px]">{{locales.create_new_report}}</div>
+                            </div>
+                        </div>
+
+                        <div v-if="staff" @click="updateSelectedIndex('all_report')" class="h-[4%] w-full relative top-[39%] flex justify-start items-center cursor-pointer mb-[5%]">
+                            <div v-if="selectedOption=='all_report'" class="h-full w-[2%] bg-[white] rounded-r-lg absolute"></div>
+                            <img class="p-[1vh] object-contain w-[18%]" src="./img/newreport.png" alt="">
+                            <div class="h-full w-full flex items-center justify-center">
+                                <div class="text-[25px]">{{locales.all_report}}</div>
+                            </div>
+                        </div>
+
+                        <div v-if="staff" @click="updateSelectedIndex('reportclaimed')" class="h-[4%] w-full relative top-[39%] flex justify-start items-center cursor-pointer mb-[5%]">
+                            <div v-if="selectedOption=='reportclaimed'" class="h-full w-[2%] bg-[white] rounded-r-lg absolute"></div>
+                            <img class="p-[1vh] object-contain w-[18%]" src="./img/myreport.png" alt="">
+                            <div class="h-full w-full flex items-center justify-center">
+                                <div class="text-[25px]">{{locales.report_claimed}}</div>
+                            </div>
+                        </div>
+
+                        <div v-if="!staff" @click="updateSelectedIndex(2)" class="h-[4%] w-full relative top-[39%] flex justify-start items-center cursor-pointer mb-[5%]">
+                            <div v-if="selectedOption==2 || selectedOption == 'viewreportplayer'" class="h-full w-[2%] bg-[white] rounded-r-lg absolute"></div>
+                            <img class="p-[1vh] object-contain w-[18%]" src="./img/myreport.png" alt="">
+                            <div class="h-full w-full flex items-center justify-center">
+                                <div class="text-[25px]">{{locales.my_report}}</div>
+                            </div>
+                        </div>
+
+
+                        <div @click="updateSelectedIndex(3)" class="h-[4%] w-full relative top-[39%] flex justify-start items-center cursor-pointer mb-[5%]">
+                            <div v-if="selectedOption==3" class="h-full w-[2%] bg-[white] rounded-r-lg absolute"></div>
+                            <img class="p-[1vh] object-contain w-[18%]" src="./img/stafflist.png" alt="">
+                            <div class="h-full w-full flex items-center justify-center">
+                                <div class="text-[25px]">{{locales.staff_list}}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        
+
+        <script src='https://code.jquery.com/jquery-3.1.1.min.js'></script>
+        <script src='https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js'></script>
+        <script src="./js/script.js"></script>
+        <script src='https://cdn.tailwindcss.com'></script>
+    </body>
+</html>

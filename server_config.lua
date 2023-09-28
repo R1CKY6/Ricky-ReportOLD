@@ -1,0 +1,4 @@
+ConfigS = {}
+
+
+ConfigS.Webhook = ""
